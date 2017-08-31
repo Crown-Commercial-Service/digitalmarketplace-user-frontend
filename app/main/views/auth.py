@@ -205,7 +205,9 @@ def create_user(encoded_token):
         )
         abort(400, INVALID_TOKEN_MESSAGE)
 
-    role = token["role"]
+    # This logic is to support old tokens (that don't include a 'role' key). After 7 days of the user-frontend being
+    # live we can drop it and just get the role from the token.
+    role = token.get('role') or 'supplier' if token.get('supplier_id') else 'buyer'
 
     if token.get('error') == 'token_expired':
         current_app.logger.warning(

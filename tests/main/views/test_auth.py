@@ -761,6 +761,56 @@ class TestCreateUser(BaseApplicationTest):
         assert u"You were invited by ‘Different Supplier Name’" in res.get_data(as_text=True)
         assert u"Your account is registered with ‘Supplier Name’" in res.get_data(as_text=True)
 
+    @mock.patch('app.main.views.auth.data_api_client')
+    def test_should_work_for_old_buyer_token_without_role(self, data_api_client):
+        data_api_client.get_user.return_value = None
+        token = generate_token(
+            {'email_address': 'test@example.com'},
+            self.app.config['SHARED_EMAIL_KEY'],
+            self.app.config['INVITE_EMAIL_SALT']
+        )
+
+        res = self.client.get(
+            '/user/create/{}'.format(token)
+        )
+        assert res.status_code == 200
+
+        for message in [
+            "Create a new Digital Marketplace account",
+            "Create account",
+            "test@example.com",
+            '<form autocomplete="off" action="/user/create/%s" method="POST" id="createUserForm">'
+                % urllib.parse.quote(token)
+        ]:
+            assert message in res.get_data(as_text=True)
+
+    @mock.patch('app.main.views.auth.data_api_client')
+    def test_should_work_for_old_supplier_token_without_role(self, data_api_client):
+        data_api_client.get_user.return_value = None
+        token = generate_token(
+            {
+                "supplier_id": '12345',
+                "supplier_name": 'Supplier Name',
+                "email_address": 'test@example.com'
+            },
+            self.app.config['SHARED_EMAIL_KEY'],
+            self.app.config['INVITE_EMAIL_SALT']
+        )
+
+        res = self.client.get(
+            '/user/create/{}'.format(token)
+        )
+        assert res.status_code == 200
+
+        for message in [
+            'Create contributor account',
+            'Create contributor account',
+            "test@example.com",
+            '<form autocomplete="off" action="/user/create/%s" method="POST" id="createUserForm">'
+                % urllib.parse.quote(token)
+        ]:
+            assert message in res.get_data(as_text=True)
+
 
 class TestSubmitCreateUser(BaseApplicationTest):
 

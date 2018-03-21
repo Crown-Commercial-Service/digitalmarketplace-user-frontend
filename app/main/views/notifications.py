@@ -14,13 +14,15 @@ from ... import data_api_client
 @main.route('/notifications/user-research', methods=["GET", "POST"])
 @login_required
 def user_research_consent():
-
+    """Page where users can opt into/ out of the user research mailing lists."""
+    # Set defaults
     form = UserResearchOptInForm(request.form)
     status_code = 200
     errors = {}
 
     if request.method == "POST":
         if form.validate_on_submit():
+            # If the form is valid then set the new value.
             user_research_opt_in = form.data.get('user_research_opt_in')
             data_api_client.update_user(
                 current_user.id,
@@ -30,20 +32,25 @@ def user_research_consent():
 
             flash("Your preference has been saved", 'success')
         else:
+            # If the form is not valid set the status code and parse the errors into an acceptable format.
             status_code = 400
             errors = {
                 key: {'question': form[key].label.text, 'input_name': key, 'message': form[key].errors[0]}
                 for key, value in form.errors.items()
             }
     else:
+        # Update the form with the existing value if this is not a POST
         user = data_api_client.get_user(current_user.id)
         form = UserResearchOptInForm(user_research_opt_in=user['users']['userResearchOptedIn'])
 
+    # Determine the correct dashboard url.
     if current_user.role == 'supplier':
         dashboard_url = url_for('external.supplier_dashboard')
     else:
         dashboard_url = url_for('external.buyer_dashboard')
 
+    # Set the seen_user_research_message cookie if it does not exist.
+    # This ensures the user research banner is no longer shown.
     additional_headers = []
     cookie_name = 'seen_user_research_message'
 

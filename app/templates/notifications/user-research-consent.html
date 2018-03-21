@@ -23,16 +23,22 @@
 
 <div class="grid-row notification-user-research">
 
+  {% if errors %}
+    {% with errors = errors.values() %}
+      {% include 'toolkit/forms/validation.html' %}
+    {% endwith %}
+  {% endif %}
+
   <div class="column-two-thirds">
     {% with heading = "{}".format(
         "Join the user research mailing list" 
-          if not userResearchOptIn
+          if not form.user_research_opt_in.data
           else "Unsubscribe from the user research mailing list"
         ) %}
       {% include "toolkit/page-heading.html" %}
     {% endwith %}
 
-    {% if not userResearchOptIn %}
+    {% if not form.user_research_opt_in.data %}
       <p class="text">
         Help us improve the Digital Marketplace by taking part in user research.
       </p>
@@ -51,13 +57,14 @@
         with
         type = "checkbox",
         name = "user_research_opt_in",
-        value = [userResearchOptIn],
+        value = [form.user_research_opt_in.data or None],
         options = [
-          { 
-            "label": "Send me emails about opportunities to get involved in user research",
-            "value": True,
+          {
+            "label": form.user_research_opt_in.label.text,
+            "value": form.user_research_opt_in.data,
           }
-        ]
+        ],
+        error = errors.get('user_research_opt_in', {}).get('message', None)
       %}
         {% include "toolkit/forms/selection-buttons.html" %}
       {% endwith %}

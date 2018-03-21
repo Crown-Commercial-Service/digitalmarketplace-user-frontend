@@ -7,24 +7,37 @@ from flask import (
     url_for
 )
 from .. import main
+from ..forms.user_research import UserResearchOptInForm
 from ... import data_api_client
 
 
 @main.route('/notifications/user-research', methods=["GET", "POST"])
 @login_required
 def user_research_consent():
-    if request.method == "POST":
-        userResearchOptIn = request.form.get('user_research_opt_in') == "True"
-        data_api_client.update_user(
-            current_user.id,
-            user_research_opted_in=userResearchOptIn,
-            updater=current_user.email_address
-        )
 
-        flash("Your preference has been saved", 'success')
+    form = UserResearchOptInForm(request.form)
+    status_code = 200
+    errors = {}
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            user_research_opt_in = form.data.get('user_research_opt_in')
+            data_api_client.update_user(
+                current_user.id,
+                user_research_opted_in=user_research_opt_in,
+                updater=current_user.email_address
+            )
+
+            flash("Your preference has been saved", 'success')
+        else:
+            status_code = 400
+            errors = {
+                key: {'question': form[key].label.text, 'input_name': key, 'message': form[key].errors[0]}
+                for key, value in form.errors.items()
+            }
     else:
         user = data_api_client.get_user(current_user.id)
-        userResearchOptIn = user['users']['userResearchOptedIn']
+        form = UserResearchOptInForm(user_research_opt_in=user['users']['userResearchOptedIn'])
 
     if current_user.role == 'supplier':
         dashboard_url = url_for('external.supplier_dashboard')
@@ -39,6 +52,7 @@ def user_research_consent():
 
     return render_template(
         "notifications/user-research-consent.html",
-        userResearchOptIn=userResearchOptIn,
+        form=form,
+        errors=errors,
         dashboard_url=dashboard_url
-    ), 200, additional_headers
+    ), status_code, additional_headers

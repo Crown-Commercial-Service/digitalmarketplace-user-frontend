@@ -73,5 +73,6 @@ def process_login():
 @main.route('/logout', methods=["POST"])
 def logout():
     session.clear()
+    session['__invalidate__'] = True
     logout_user()
     return redirect(url_for('.render_login'))

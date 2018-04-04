@@ -190,6 +190,21 @@ class TestLogin(BaseApplicationTest):
         with self.client.session_transaction() as session:
             assert session.get('company_name') is None
 
+    def test_should_remove_session_cookie_on_logout(self):
+        with self.app.app_context():
+            res = self.client.post("/login", data={
+                'email_address': 'valid@email.com',
+                'password': '1234567890'
+            })
+
+            cookie_value_1 = self.get_cookie_by_name(res, 'dm_session')
+            assert cookie_value_1['dm_session'] is not None
+
+            res2 = self.client.post('/user/logout')
+
+            cookie_value_2 = self.get_cookie_by_name(res2, 'dm_session')
+            assert cookie_value_2['dm_session'] == ''
+
     @mock.patch('app.main.views.auth.data_api_client')
     def test_should_return_a_403_for_invalid_login(self, data_api_client):
         data_api_client.authenticate_user.return_value = None

@@ -75,6 +75,13 @@ def create_app(config_name):
         session.permanent = True
         session.modified = True
 
+    @application.after_request
+    def remove_invalid_session_cookie(response):
+        # auth.logout sets __invalidate__ flag in session
+        if "__invalidate__" in session:
+            response.set_cookie(application.session_cookie_name, '', expires=0)
+        return response
+
     return application
 
 

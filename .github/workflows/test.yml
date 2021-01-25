@@ -24,18 +24,21 @@ jobs:
 
     - name: Setup Node cache
       uses: actions/cache@v2
+      id: node-cache
       with:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
     
-    - name: Install Node dependencies
+    - name: Install Node version
       shell: bash -l {0}
-      run: |
-        nvm install
-        make npm-install
-  
+      run: nvm install
+
+    - name: Install Node dependencies
+      run:  make npm-install
+      if: steps.node-cache.outputs.cache-hit != 'true'
+
     - name: Install python dependencies
       run: make requirements-dev
       if: steps.python-cache.outputs.cache-hit != 'true'

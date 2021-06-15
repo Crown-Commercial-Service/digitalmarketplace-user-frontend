@@ -4,7 +4,6 @@ const del = require('del')
 const sass = require('gulp-sass')
 const filelog = require('gulp-filelog')
 const include = require('gulp-include')
-const sourcemaps = require('gulp-sourcemaps')
 const path = require('path')
 
 // Paths
@@ -100,15 +99,13 @@ gulp.task('sass', function () {
 })
 
 gulp.task('js', function () {
-  const stream = gulp.src(jsSourceFile)
+  const stream = gulp.src(jsSourceFile, { sourcemaps: true })
     .pipe(filelog('Compressing JavaScript files'))
     .pipe(include({ hardFail: true }))
-    .pipe(sourcemaps.init())
     .pipe(uglify(
       uglifyOptions[environment]
     ))
-    .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest(jsDistributionFolder))
+    .pipe(gulp.dest(jsDistributionFolder, { sourcemaps: 'maps' }))
 
   stream.on('end', function () {
     console.log('💾 Compressed JavaScript saved as ' + jsDistributionFolder + '/' + jsDistributionFile)

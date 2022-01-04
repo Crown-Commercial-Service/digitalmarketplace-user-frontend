@@ -21,7 +21,7 @@ from dmutils.email.helpers import hash_string
 
 from .. import main
 from ..forms.auth_forms import LoginForm
-from ..helpers.login_helpers import redirect_logged_in_user
+from ..helpers.login_helpers import redirect_logged_in_user, dos6_live
 from ... import data_api_client
 
 
@@ -43,7 +43,8 @@ def render_login():
         "auth/login.html",
         form=form,
         errors=errors,
-        next=next_url), 200
+        next=next_url,
+        dos6_live=dos6_live(request.args)), 200
 
 
 @main.route('/login', methods=["POST"])
@@ -73,7 +74,8 @@ def process_login():
                 form=form,
                 errors=errors,
                 error_summary_description_text=NO_ACCOUNT_MESSAGE,
-                next=next_url), 403
+                next=next_url,
+                dos6_live=dos6_live(request.args)), 403
 
         user = User.from_json(user_json)
 
@@ -88,7 +90,8 @@ def process_login():
             "auth/login.html",
             form=form,
             errors=errors,
-            next=next_url), 400
+            next=next_url,
+            dos6_live=dos6_live(request.args)), 400
 
 
 # We allow logging out via GET request so that we can have a simple link in the

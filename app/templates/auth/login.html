@@ -19,6 +19,24 @@
 {% block mainContent %}
   <h1 class="govuk-heading-xl">Log in to the Digital Marketplace</h1>
 
+  {% if dos6_live %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% set html %}
+          <p class="govuk-notification-banner__heading">
+            Supplier information from DOS6 is not available from this log in screen
+            <a class="govuk-notification-banner__link" href="https://www.applytosupply.digitalmarketplace.service.gov.uk">Start or continue your application for the DOS6 framework</a>
+          </p>
+        {% endset %}
+
+        {{ govukNotificationBanner({
+          "titleText": 'Important supplier information',
+          "html": html
+        }) }}
+      </div>
+    </div>
+  {% endif %}
+
   <form action="{{ url_for('.process_login', next=next) }}" method="POST" novalidate>
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">

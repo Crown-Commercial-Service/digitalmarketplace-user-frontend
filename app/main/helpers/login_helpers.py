@@ -3,6 +3,11 @@ from urllib.parse import urlparse, urljoin
 from flask_login import current_user
 from flask import request, redirect, url_for
 
+from datetime import datetime
+
+# Go Live Dates
+DOS6_GO_LIVE_DATE = '2022-01-14'
+
 
 def is_safe_url(next_url):
     """
@@ -45,3 +50,7 @@ def get_user_dashboard_url(current_user_):
         return url_for('external.admin_dashboard')
 
     return None
+
+
+def dos6_live(params):
+    return datetime.utcnow().strftime('%Y-%m-%d') >= DOS6_GO_LIVE_DATE or params.get('show_dos6_live') == 'true'

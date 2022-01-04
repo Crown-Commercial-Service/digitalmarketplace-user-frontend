@@ -11,6 +11,8 @@ from app.main.forms.auth_forms import (
 )
 from app.main.views.auth import NO_ACCOUNT_MESSAGE
 
+from freezegun import freeze_time
+
 
 # subset of WCAG 2.1 input purposes
 # https://www.w3.org/TR/WCAG21/#input-purposes
@@ -39,6 +41,36 @@ class TestLogin(BaseApplicationTest):
         res = self.client.get("/user/login")
         assert res.status_code == 200
         assert "Log in to the Digital Marketplace" in res.get_data(as_text=True)
+
+    @freeze_time('2022-01-04')
+    def test_should_not_show_banner_if_before_go_live_date(self):
+        res = self.client.get("/user/login")
+        assert res.status_code == 200
+        assert "Important supplier information" not in res.get_data(as_text=True)
+
+    @freeze_time('2022-01-14')
+    def test_should_show_banner_if_on_go_live_date(self):
+        res = self.client.get("/user/login")
+        assert res.status_code == 200
+        assert "Important supplier information" in res.get_data(as_text=True)
+
+    @freeze_time('2022-01-15')
+    def test_should_show_banner_if_after_go_live_date(self):
+        res = self.client.get("/user/login")
+        assert res.status_code == 200
+        assert "Important supplier information" in res.get_data(as_text=True)
+
+    @freeze_time('2022-01-04')
+    def test_should_show_banner_if_before_date_and_go_live_param(self):
+        res = self.client.get("/user/login?show_dos6_live=true")
+        assert res.status_code == 200
+        assert "Important supplier information" in res.get_data(as_text=True)
+
+    @freeze_time('2022-01-04')
+    def test_should_not_show_banner_if_before_date_and_not_go_live_param(self):
+        res = self.client.get("/user/login?show_gcloud13_live=true")
+        assert res.status_code == 200
+        assert "Important supplier information" not in res.get_data(as_text=True)
 
     def test_should_redirect_to_supplier_dashboard_on_supplier_login(self):
         res = self.client.post("/user/login", data={
@@ -223,6 +255,16 @@ class TestLogin(BaseApplicationTest):
 
         assert response.status_code == 403
 
+    @freeze_time('2022-02-24')
+    def test_should_show_banner_if_after_go_live_date_when_invalid_403(self):
+        self.data_api_client.authenticate_user.return_value = None
+        res = self.client.post("/user/login", data={
+            'email_address': 'valid@email.com',
+            'password': '1234567890'
+        })
+        assert res.status_code == 403
+        assert "Important supplier information" in res.get_data(as_text=True)
+
     def test_should_be_validation_error_if_no_email_or_password(self):
         res = self.client.post("/user/login", data={})
         content = self.strip_all_whitespace(res.get_data(as_text=True))
@@ -238,6 +280,12 @@ class TestLogin(BaseApplicationTest):
         content = self.strip_all_whitespace(res.get_data(as_text=True))
         assert res.status_code == 400
         assert self.strip_all_whitespace(EMAIL_INVALID_ERROR_MESSAGE) in content
+
+    @freeze_time('2022-01-24')
+    def test_should_show_banner_if_after_go_live_date_when_invalid_400(self):
+        res = self.client.post("/user/login", data={})
+        assert res.status_code == 400
+        assert "Important supplier information" in res.get_data(as_text=True)
 
 
 class TestLoginFormIsAccessible(BaseApplicationTest):

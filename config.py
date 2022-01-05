@@ -57,9 +57,6 @@ class Config(object):
     DM_LOG_PATH = None
     DM_APP_NAME = 'user-frontend'
 
-    # Go Live Dates
-    DOS6_GO_LIVE_DATE = '2022-01-14'
-
     @staticmethod
     def init_app(app):
         repo_root = os.path.abspath(os.path.dirname(__file__))

@@ -18,10 +18,11 @@ from dmutils.forms.errors import (
 )
 from dmutils.user import User
 from dmutils.email.helpers import hash_string
+from dmutils.framework_notification import dos6_live
 
 from .. import main
 from ..forms.auth_forms import LoginForm
-from ..helpers.login_helpers import redirect_logged_in_user, dos6_live
+from ..helpers.login_helpers import redirect_logged_in_user
 from ... import data_api_client
 
 

@@ -46,14 +46,14 @@ class TestLogin(BaseApplicationTest):
         res = self.client.get("/user/login")
         assert res.status_code == 200
         are_new_frameworks_live.assert_called_once()
-        assert "Important supplier information" not in res.get_data(as_text=True)
+        assert "Important information" not in res.get_data(as_text=True)
 
     @mock.patch('app.main.views.auth.are_new_frameworks_live')
     def test_should_show_banner_when_needed(self, are_new_frameworks_live):
         are_new_frameworks_live.return_value = True
         res = self.client.get("/user/login")
         assert res.status_code == 200
-        assert "Important supplier information" in res.get_data(as_text=True)
+        assert "Important information" in res.get_data(as_text=True)
 
     @mock.patch('app.main.views.auth.are_new_frameworks_live')
     def test_should_pass_through_request_parameters(self, are_new_frameworks_live):
@@ -252,7 +252,7 @@ class TestLogin(BaseApplicationTest):
             'password': '1234567890'
         })
         assert res.status_code == 403
-        assert "Important supplier information" in res.get_data(as_text=True)
+        assert "Important information" in res.get_data(as_text=True)
 
     def test_should_be_validation_error_if_no_email_or_password(self):
         res = self.client.post("/user/login", data={})
@@ -275,7 +275,7 @@ class TestLogin(BaseApplicationTest):
         are_new_frameworks_live.return_value = True
         res = self.client.post("/user/login", data={})
         assert res.status_code == 400
-        assert "Important supplier information" in res.get_data(as_text=True)
+        assert "Important information" in res.get_data(as_text=True)
 
 
 class TestLoginFormIsAccessible(BaseApplicationTest):

@@ -22,7 +22,7 @@ from dmutils.dmp_so_status import are_new_frameworks_live
 
 from .. import main
 from ..forms.auth_forms import LoginForm
-from ..helpers.login_helpers import redirect_logged_in_user
+from ..helpers.login_helpers import redirect_logged_in_user, is_there_a_live_g_cloud_framework
 from ... import data_api_client
 
 
@@ -45,7 +45,8 @@ def render_login():
         form=form,
         errors=errors,
         next=next_url,
-        are_new_frameworks_live=are_new_frameworks_live(request.args)), 200
+        are_new_frameworks_live=are_new_frameworks_live(request.args),
+        g_cloud_frameworks_live=is_there_a_live_g_cloud_framework(data_api_client)), 200
 
 
 @main.route('/login', methods=["POST"])
@@ -76,7 +77,8 @@ def process_login():
                 errors=errors,
                 error_summary_description_text=NO_ACCOUNT_MESSAGE,
                 next=next_url,
-                are_new_frameworks_live=are_new_frameworks_live(request.args)), 403
+                are_new_frameworks_live=are_new_frameworks_live(request.args),
+                g_cloud_frameworks_live=is_there_a_live_g_cloud_framework(data_api_client)), 403
 
         user = User.from_json(user_json)
 
@@ -92,7 +94,8 @@ def process_login():
             form=form,
             errors=errors,
             next=next_url,
-            are_new_frameworks_live=are_new_frameworks_live(request.args)), 400
+            are_new_frameworks_live=are_new_frameworks_live(request.args),
+            g_cloud_frameworks_live=is_there_a_live_g_cloud_framework(data_api_client)), 400
 
 
 # We allow logging out via GET request so that we can have a simple link in the

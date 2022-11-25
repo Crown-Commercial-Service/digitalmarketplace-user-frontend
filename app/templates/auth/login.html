@@ -20,7 +20,7 @@
   {% if are_new_frameworks_live %}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        {{ dmNewFrameworkBanner() }}
+        {{ dmNewFrameworkBanner({ 'gCloudLive': g_cloud_frameworks_live }) }}
       </div>
     </div>
   {% endif %}

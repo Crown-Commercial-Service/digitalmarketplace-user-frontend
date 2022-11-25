@@ -45,3 +45,11 @@ def get_user_dashboard_url(current_user_):
         return url_for('external.admin_dashboard')
 
     return None
+
+
+def is_there_a_live_g_cloud_framework(client):
+    live_g_cloud_frameworks = list(
+        filter(lambda f: f['family'] == 'g-cloud' and f['status'] == 'live', client.find_frameworks()['frameworks'])
+    )
+
+    return len(live_g_cloud_frameworks) > 0
